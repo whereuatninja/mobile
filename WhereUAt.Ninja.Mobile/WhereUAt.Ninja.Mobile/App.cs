@@ -9,10 +9,13 @@ namespace WhereUAt.Ninja.Mobile
 {
     public class App : Application
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public App()
         {
             // The root page of your application
-            MainPage = new ContentPage
+            /*MainPage = new ContentPage
             {
                 Content = new StackLayout
                 {
@@ -24,7 +27,8 @@ namespace WhereUAt.Ninja.Mobile
                         }
                     }
                 }
-            };
+            };*/
+            MainPage = new WhereUAt.Ninja.Mobile.MainPage();
         }
 
         protected override void OnStart()
