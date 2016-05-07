@@ -9,13 +9,14 @@ namespace WhereUAt.Ninja.Mobile
 {
     public class BaseContentPage: ContentPage
     {
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
             if (!App.Instance.IsAuthenticated)
             {
-                Navigation.PushModalAsync(new LoginPage());
+                App.Instance.MainNav = this;
+                await Navigation.PushModalAsync(new LoginPage());
             }
         }
     }

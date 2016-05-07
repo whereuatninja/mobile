@@ -12,7 +12,7 @@ namespace WhereUAt.Ninja.Mobile
         static NavigationPage _NavPage; 
         public App()
         {
-            var mainPage = new WhereUAt.Ninja.Mobile.MainPage();
+            var mainPage = new MainPage();
             _NavPage = new NavigationPage(mainPage);
             MainPage = _NavPage;
         }
@@ -61,9 +61,11 @@ namespace WhereUAt.Ninja.Mobile
         {
             get
             {
-                return new Action(() => _NavPage.Navigation.PopModalAsync());
+                return new Action(async () => await MainNav.Navigation.PopModalAsync());
             }
         }
+
+        public BaseContentPage MainNav { get; set; }
 
         protected override void OnStart()
         {
