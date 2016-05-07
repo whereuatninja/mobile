@@ -17,11 +17,19 @@ namespace WhereUAt.Ninja.Mobile
     {
         private ListView locationListView;
         private ObservableCollection<string> locationList;
-        private int minTimeInterval = 5000;
-        private double minDistance = 0;
         private IGeolocator _locator;
 
+        private Settings settings;
+
         public MainPage()
+        {
+            setupView();
+            setupSettings();
+            setupGeoLocator();
+            getLocationLoop();
+        }
+
+        private void setupView()
         {
             locationList = new ObservableCollection<string>();
 
@@ -31,13 +39,6 @@ namespace WhereUAt.Ninja.Mobile
                 Font = Font.SystemFontOfSize(50),
                 HorizontalOptions = LayoutOptions.Center
             };
-
-            Button button = new Button
-            {
-                Text = "What is my location?",
-                HorizontalOptions = LayoutOptions.Center
-            };
-            button.Clicked += OnGetLocation;
 
             locationListView = new ListView
             {
@@ -49,13 +50,27 @@ namespace WhereUAt.Ninja.Mobile
                 Children =
                 {
                     headerLabel,
-                    button,
                     locationListView
                 }
             };
-            
-            setupGeoLocator();
-            setupTimer();
+        }
+
+        private void setupSettings()
+        {
+            this.settings = new Settings();
+        }
+
+        private async void getLocationLoop()
+        {
+            while(settings.IsLocationTrackerOn)
+            {
+                await Task.Factory.StartNew(async () =>
+                {
+                    Position position = await getCurrentLocation();
+                    addCurrentLocationToList(position);
+                });
+                await Task.Delay(settings.LocationTimeIntervalInMilliseconds);
+            }
         }
 
         private void setupGeoLocator()
@@ -64,25 +79,13 @@ namespace WhereUAt.Ninja.Mobile
             _locator.AllowsBackgroundUpdates = true;
         }
 
-        async void OnGetLocation(object sender, EventArgs e)
-        {
-            try
-            {
-                //Location location = await getCurrentLocation();
-                //locationList.Add(String.Format("Longitude: {0} Latitude: {1}", location.Longitude, location.Latitude));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Unable to get location");
-            }
-        }
-
         async private Task<Position> getCurrentLocation()
         {
             Position position = null;
             try
             {
-                position = await _locator.GetPositionAsync(timeoutMilliseconds: 5000);
+                position = await _locator.GetPositionAsync(timeoutMilliseconds: settings.LocationTimeOutInMilliseconds);
+                await _locator.StopListeningAsync();
             }
             catch(Exception ex)
             {
@@ -92,27 +95,14 @@ namespace WhereUAt.Ninja.Mobile
             return position;
         }
 
-        private void setupTimer()
+        private void addCurrentLocationToList(Position position)
         {
-            IAdvancedTimer timer = DependencyService.Get<IAdvancedTimer>();
-            timer.initTimer(10000, timerElapsed, true);
-            timer.startTimer();
-        }
-
-        async private void addCurrentLocationToList()
-        {
-            var locator = CrossGeolocator.Current;
-            var position = await locator.GetPositionAsync(timeoutMilliseconds: 10000);
             if (position != null)
             {
                 locationList.Add(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
+                Debug.WriteLine(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
             }
-        }
-
-        private void timerElapsed(object sender, EventArgs e)
-        {
-            Debug.WriteLine("Boom! Timer went off");
-            addCurrentLocationToList();
         }
     }
 }
+

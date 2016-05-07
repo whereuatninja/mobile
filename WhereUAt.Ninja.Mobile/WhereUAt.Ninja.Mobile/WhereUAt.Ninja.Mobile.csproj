@@ -41,6 +41,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AdvancedTimer.Forms.Plugin.Abstractions, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
