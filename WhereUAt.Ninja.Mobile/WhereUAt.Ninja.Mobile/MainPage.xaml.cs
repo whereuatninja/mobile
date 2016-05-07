@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using Xamarin.Forms;
 using System.Threading;
 using AdvancedTimer.Forms.Plugin.Abstractions;
+using Plugin.Geolocator.Abstractions;
 
 namespace WhereUAt.Ninja.Mobile
 {
@@ -18,6 +19,7 @@ namespace WhereUAt.Ninja.Mobile
         private ObservableCollection<string> locationList;
         private int minTimeInterval = 5000;
         private double minDistance = 0;
+        private IGeolocator _locator;
 
         public MainPage()
         {
@@ -51,24 +53,10 @@ namespace WhereUAt.Ninja.Mobile
                     locationListView
                 }
             };
+            _locator = CrossGeolocator.Current;
 
-            //setupTimer();
-            setupLocationListener();
+            setupTimer();
         }
-
-        private void setupLocationListener()
-        {
-            var locator = CrossGeolocator.Current;
-            locator.StartListeningAsync(minTimeInterval, minDistance, false);
-
-            locator.PositionChanged += (sender, e) =>
-            {
-                var position = e.Position;
-                locationList.Add(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
-            };
-        }
-
-
 
         async void OnGetLocation(object sender, EventArgs e)
         {
@@ -83,12 +71,11 @@ namespace WhereUAt.Ninja.Mobile
             }
         }
 
-        /*async private Task<Location> getCurrentLocation()
+        async private Task<Position> getCurrentLocation()
         {
-            var locator = CrossGeolocator.Current;
-            var position = await locator.GetPositionAsync(timeoutMilliseconds: 10000);
-            Location location = new Location(position.Longitude, position.Latitude);
-            return location;
+            //var locator = CrossGeolocator.Current;
+            var position = await _locator.GetPositionAsync(timeoutMilliseconds: 5000);
+            return position;
         }
 
         private void setupTimer()
@@ -107,7 +94,8 @@ namespace WhereUAt.Ninja.Mobile
 
         private void timerElapsed(object sender, EventArgs e)
         {
+            Debug.WriteLine("Boom! Timer went off");
             addCurrentLocationToList();
-        }*/
+        }
     }
 }
