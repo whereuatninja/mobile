@@ -20,18 +20,12 @@ namespace WhereUAt.Ninja.Mobile.Droid
 {
     public class LoginPageRenderer : PageRenderer
     {
-        private LoginPage _page;
-        private bool _cancelledByUser = false;
-        private bool _justLoggedIn = false;
-
         protected override async void OnElementChanged(ElementChangedEventArgs<Page> e)
         {
             base.OnElementChanged(e);
 
             // this is a ViewGroup - so should be able to load an AXML file and FindView<>
             var activity = this.Context as Activity;
-
-            _page = e.NewElement as LoginPage;
 
             var auth0 = new Auth0Client(
                 "whereuat.auth0.com",
@@ -40,7 +34,8 @@ namespace WhereUAt.Ninja.Mobile.Droid
             try
             {
                 var user = await auth0.LoginAsync(this.Context);
-                App.Instance.SaveToken(user.Profile["identities"][0]["access_token"].ToString());             
+                App.Instance.SaveToken(user.Profile["identities"][0]["access_token"].ToString());
+                App.Instance.SuccessfulLoginAction.Invoke();
             }
             catch (Exception ex)
             {
@@ -48,7 +43,7 @@ namespace WhereUAt.Ninja.Mobile.Droid
             }
 
             
-                        /*
+            /*
             - get user email => user.Profile["email"].ToString()
             - get facebook/google/twitter/etc access token => user.Profile["identities"][0]["access_token"]
             - get Windows Azure AD groups => user.Profile["groups"]

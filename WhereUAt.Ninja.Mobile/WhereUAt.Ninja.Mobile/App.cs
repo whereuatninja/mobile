@@ -55,8 +55,6 @@ namespace WhereUAt.Ninja.Mobile
 
             // broadcast a message that authentication was successful
             MessagingCenter.Send<App>(this, "Authenticated");
-
-            await _NavPage.Navigation.PopModalAsync();
         }
 
         public Action SuccessfulLoginAction
