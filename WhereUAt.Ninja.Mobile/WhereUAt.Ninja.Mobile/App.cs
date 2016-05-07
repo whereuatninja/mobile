@@ -9,26 +9,60 @@ namespace WhereUAt.Ninja.Mobile
 {
     public class App : Application
     {
-        /// <summary>
-        /// 
-        /// </summary>
+        static NavigationPage _NavPage; 
         public App()
         {
-            // The root page of your application
-            /*MainPage = new ContentPage
+            var mainPage = new WhereUAt.Ninja.Mobile.MainPage();
+            _NavPage = new NavigationPage(mainPage);
+            MainPage = _NavPage;
+        }
+
+        static volatile App _Instance;
+        static object _SyncRoot = new Object();
+        public static App Instance
+        {
+            get
             {
-                Content = new StackLayout
+                if (_Instance == null)
                 {
-                    VerticalOptions = LayoutOptions.Center,
-                    Children = {
-                        new Label {
-                            XAlign = TextAlignment.Center,
-                            Text = "Welcome to Xamarin Forms!"
+                    lock (_SyncRoot)
+                    {
+                        if (_Instance == null)
+                        {
+                            _Instance = new App();
                         }
                     }
                 }
-            };*/
-            MainPage = new WhereUAt.Ninja.Mobile.MainPage();
+
+                return _Instance;
+            }
+        }
+
+        public bool IsAuthenticated
+        {
+            get { return !string.IsNullOrWhiteSpace(_Token); }
+        }
+
+        string _Token;
+        public string Token
+        {
+            get { return _Token; }
+        }
+
+        public void SaveToken(string token)
+        {
+            _Token = token;
+
+            // broadcast a message that authentication was successful
+            MessagingCenter.Send<App>(this, "Authenticated");
+        }
+
+        public Action SuccessfulLoginAction
+        {
+            get
+            {
+                return new Action(() => _NavPage.Navigation.PopModalAsync());
+            }
         }
 
         protected override void OnStart()

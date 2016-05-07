@@ -26,6 +26,7 @@ namespace WhereUAt.Ninja.Mobile.Droid
 		
 		public static void UpdateIdValues()
 		{
+			global::Auth0.SDK.Resource.String.library_name = global::WhereUAt.Ninja.Mobile.Droid.Resource.String.library_name;
 		}
 		
 		public partial class Attribute
@@ -53,6 +54,22 @@ namespace WhereUAt.Ninja.Mobile.Droid
 			}
 			
 			private Drawable()
+			{
+			}
+		}
+		
+		public partial class String
+		{
+			
+			// aapt resource value: 0x7f030000
+			public const int library_name = 2130903040;
+			
+			static String()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private String()
 			{
 			}
 		}

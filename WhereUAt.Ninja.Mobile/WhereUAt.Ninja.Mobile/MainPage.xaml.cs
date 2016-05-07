@@ -10,7 +10,7 @@ using Xamarin.Forms;
 
 namespace WhereUAt.Ninja.Mobile
 {
-    public partial class MainPage : ContentPage
+    public partial class MainPage : BaseContentPage
     {
         public MainPage()
         {
