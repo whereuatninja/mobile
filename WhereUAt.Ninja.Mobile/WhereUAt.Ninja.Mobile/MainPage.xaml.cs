@@ -53,9 +53,15 @@ namespace WhereUAt.Ninja.Mobile
                     locationListView
                 }
             };
-            _locator = CrossGeolocator.Current;
-
+            
+            setupGeoLocator();
             setupTimer();
+        }
+
+        private void setupGeoLocator()
+        {
+            _locator = CrossGeolocator.Current;
+            _locator.AllowsBackgroundUpdates = true;
         }
 
         async void OnGetLocation(object sender, EventArgs e)
@@ -73,8 +79,16 @@ namespace WhereUAt.Ninja.Mobile
 
         async private Task<Position> getCurrentLocation()
         {
-            //var locator = CrossGeolocator.Current;
-            var position = await _locator.GetPositionAsync(timeoutMilliseconds: 5000);
+            Position position = null;
+            try
+            {
+                position = await _locator.GetPositionAsync(timeoutMilliseconds: 5000);
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine("Unable to get location: "+ex.Message);
+            }
+            
             return position;
         }
 
@@ -89,7 +103,10 @@ namespace WhereUAt.Ninja.Mobile
         {
             var locator = CrossGeolocator.Current;
             var position = await locator.GetPositionAsync(timeoutMilliseconds: 10000);
-            locationList.Add(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
+            if (position != null)
+            {
+                locationList.Add(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
+            }
         }
 
         private void timerElapsed(object sender, EventArgs e)
