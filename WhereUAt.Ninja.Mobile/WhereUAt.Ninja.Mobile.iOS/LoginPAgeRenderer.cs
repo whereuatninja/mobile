@@ -21,17 +21,22 @@ namespace WhereUAt.Ninja.Mobile.iOS
 
             if (!IsShown)
             {
-
                 IsShown = true;
 
                 var auth0 = new Auth0Client(
                     "whereuat.auth0.com",
                     "F2wSS3rEHorHyW3C9ezB2NnEAClryjcI");
 
-                var user = await auth0.LoginAsync(this);
+                try
+                {
+                    var user = await auth0.LoginAsync(this);
+                    App.Instance.SaveToken(user.Profile["identities"][0]["access_token"].ToString());
+                }
+                catch(Exception ex)
+                {
 
-                App.Instance.SuccessfulLoginAction.Invoke();
-                App.Instance.SaveToken(user.Profile["identities"][0]["access_token"].ToString());
+                }
+
                 /*
                 - get user email => user.Profile["email"].ToString()
                 - get facebook/google/twitter/etc access token => user.Profile["identities"][0]["access_token"]

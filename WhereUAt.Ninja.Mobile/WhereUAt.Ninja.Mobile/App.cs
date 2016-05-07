@@ -49,12 +49,14 @@ namespace WhereUAt.Ninja.Mobile
             get { return _Token; }
         }
 
-        public void SaveToken(string token)
+        public async void SaveToken(string token)
         {
             _Token = token;
 
             // broadcast a message that authentication was successful
             MessagingCenter.Send<App>(this, "Authenticated");
+
+            await _NavPage.Navigation.PopModalAsync();
         }
 
         public Action SuccessfulLoginAction
