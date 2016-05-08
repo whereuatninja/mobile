@@ -4,6 +4,8 @@ using Android.App;
 using Android.OS;
 using Android.Runtime;
 using Plugin.CurrentActivity;
+using Android.Util;
+using Android.Content;
 
 namespace WhereUAt.Ninja.Mobile.Droid
 {
@@ -21,6 +23,7 @@ namespace WhereUAt.Ninja.Mobile.Droid
             base.OnCreate();
             RegisterActivityLifecycleCallbacks(this);
             //A great place to initialize Xamarin.Insights and Dependency Services!
+            //StartService(new Intent(this, typeof(LocationBackgroundService)));
         }
 
         public override void OnTerminate()

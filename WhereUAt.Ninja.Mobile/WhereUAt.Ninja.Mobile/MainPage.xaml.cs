@@ -23,11 +23,13 @@ namespace WhereUAt.Ninja.Mobile
 
         public MainPage()
         {
+            Debug.WriteLine("MainPage");
             setupView();
             setupSettings();
             setupGeoLocator();
-            getLocationLoop();
+            //getLocationLoop();
         }
+
 
         private void setupView()
         {
@@ -40,6 +42,13 @@ namespace WhereUAt.Ninja.Mobile
                 HorizontalOptions = LayoutOptions.Center
             };
 
+            Button startServiceButton = new Button
+            {
+                Text = "Start Tracking"
+            };
+
+            startServiceButton.Clicked += StartServiceButton_Clicked;
+
             locationListView = new ListView
             {
                 ItemsSource = locationList
@@ -50,25 +59,43 @@ namespace WhereUAt.Ninja.Mobile
                 Children =
                 {
                     headerLabel,
+                    startServiceButton,
                     locationListView
                 }
             };
         }
 
+        private void StartServiceButton_Clicked(object sender, EventArgs e)
+        {
+            var locationTask = new Task(() => { getLocationLoop(); });
+            locationTask.Start();
+        }
+
         private void setupSettings()
         {
-            this.settings = new Settings();
+            this.settings = Settings.getInstance();
         }
 
         private async void getLocationLoop()
         {
-            while(settings.IsLocationTrackerOn)
+            while (true)
             {
-                await Task.Factory.StartNew(async () =>
+                if (settings.IsLocationTrackerOn && App.Instance.IsAuthenticated)
                 {
-                    Position position = await getCurrentLocation();
-                    addCurrentLocationToList(position);
-                });
+                    await Task.Factory.StartNew(async () =>
+                    {
+                        Position position = await getCurrentLocation();
+                        if (position != null)
+                        {
+                            addCurrentLocationToList(position);
+                            sendLocation(position);
+                        }
+                    });
+                }
+                else
+                {
+                    Debug.WriteLine("Not authenticated and/or location tracker off");
+                }
                 await Task.Delay(settings.LocationTimeIntervalInMilliseconds);
             }
         }
@@ -93,6 +120,12 @@ namespace WhereUAt.Ninja.Mobile
             }
             
             return position;
+        }
+
+        private void sendLocation(Position position)
+        {
+            Debug.WriteLine("sendLocation");
+            LocationService.sendLocation(position);
         }
 
         private void addCurrentLocationToList(Position position)

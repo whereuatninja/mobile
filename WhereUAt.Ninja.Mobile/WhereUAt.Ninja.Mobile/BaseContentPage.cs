@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace WhereUAt.Ninja.Mobile
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-
+        
             if (!App.Instance.IsAuthenticated)
             {
                 App.Instance.MainNav = this;
