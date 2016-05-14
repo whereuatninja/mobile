@@ -30,12 +30,12 @@ namespace WhereUAt.Ninja.Mobile.iOS
                 try
                 {
                     var user = await auth0.LoginAsync(this);
+                    Log.Info();
                     App.Instance.SaveToken(user.Profile["identities"][0]["access_token"].ToString());
                     App.Instance.SuccessfulLoginAction.Invoke();
                 }
                 catch(Exception ex)
                 {
-
                 }
 
                 /*

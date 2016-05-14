@@ -10,6 +10,7 @@ using Xamarin.Forms;
 using System.Threading;
 using AdvancedTimer.Forms.Plugin.Abstractions;
 using Plugin.Geolocator.Abstractions;
+using WhereUAt.Ninja.Mobile.Messages;
 
 namespace WhereUAt.Ninja.Mobile
 {
@@ -67,8 +68,10 @@ namespace WhereUAt.Ninja.Mobile
 
         private void StartServiceButton_Clicked(object sender, EventArgs e)
         {
-            var locationTask = new Task(() => { getLocationLoop(); });
-            locationTask.Start();
+            //var locationTask = new Task(() => { getLocationLoop(); });
+            //locationTask.Start();
+            var message = new StartLocationBackgroundService();
+            MessagingCenter.Send(message, "StartLocationBackgroundService");
         }
 
         private void setupSettings()
@@ -80,7 +83,7 @@ namespace WhereUAt.Ninja.Mobile
         {
             while (true)
             {
-                if (settings.IsLocationTrackerOn && App.Instance.IsAuthenticated)
+                if (settings.IsLocationTrackerOn/* && App.Instance.IsAuthenticated*/)
                 {
                     await Task.Factory.StartNew(async () =>
                     {

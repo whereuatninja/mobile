@@ -34,7 +34,7 @@ namespace WhereUAt.Ninja.Mobile.Droid
             try
             {
                 var user = await auth0.LoginAsync(this.Context);
-                App.Instance.SaveToken(user.Profile["identities"][0]["access_token"].ToString());
+                App.Instance.SaveToken(user.IdToken);
                 App.Instance.SuccessfulLoginAction.Invoke();
             }
             catch (Exception ex)

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.Generic;using System.Linq;using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
@@ -29,6 +27,7 @@ namespace WhereUAt.Ninja.Mobile
         {
             httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
         }
 
         public async Task<bool> sendLocation(double longitude, double latitude, long time)
@@ -38,7 +37,11 @@ namespace WhereUAt.Ninja.Mobile
             json.Add("lat", latitude);
             String body = JsonConvert.SerializeObject(json);
             Debug.WriteLine("WhereUAtNinjaAPI.sendLocation before post: " + body);
-            HttpResponseMessage response = await httpClient.PostAsync("http://192.168.1.7:3000/locations", new StringContent(body, Encoding.UTF8, "application/json"));
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "http://192.168.99.100/api/locations");
+            StringContent content = new StringContent(body);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            request.Content = content;
+            HttpResponseMessage response = await httpClient.SendAsync(request);
             Debug.WriteLine("WhereUAtNinjaAPI.sendLocation after post");
             String responseBody = await response.Content.ReadAsStringAsync();
             Debug.WriteLine("WhereUAtNinjaAPI.sendLocation responseBody:" + responseBody);
