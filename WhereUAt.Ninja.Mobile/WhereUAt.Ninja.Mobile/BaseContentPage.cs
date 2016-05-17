@@ -14,11 +14,11 @@ namespace WhereUAt.Ninja.Mobile
         {
             base.OnAppearing();
         
-            if (!App.Instance.IsAuthenticated)
+            /*if (!App.Instance.IsAuthenticated)
             {
                 App.Instance.MainNav = this;
                 await Navigation.PushModalAsync(new LoginPage());
-            }
+            }*/
         }
     }
 }

@@ -9,12 +9,13 @@ namespace WhereUAt.Ninja.Mobile
 {
     public class App : Application
     {
-        static NavigationPage _NavPage; 
+        public static NavigationPage _NavPage; 
         public App()
         {
             var mainPage = new MainPage();
             _NavPage = new NavigationPage(mainPage);
             MainPage = _NavPage;
+            IsLocationTrackerStarted = false;
         }
 
         static volatile App _Instance;
@@ -42,6 +43,8 @@ namespace WhereUAt.Ninja.Mobile
         {
             get { return !string.IsNullOrWhiteSpace(_Token); }
         }
+
+        public bool IsLocationTrackerStarted { get; set; }
 
         string _Token;
         public string Token

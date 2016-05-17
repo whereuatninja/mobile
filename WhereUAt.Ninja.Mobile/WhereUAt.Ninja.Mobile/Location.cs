@@ -10,13 +10,13 @@ namespace WhereUAt.Ninja.Mobile
     {
         public double Longitude { get; private set; }
         public double Latitude { get; private set; }
+        public long Time { get; private set; }
 
-        
-
-        public Location(double longitude, double latitude)
+        public Location(double longitude, double latitude, long time)
         {
             this.Longitude = longitude;
             this.Latitude = latitude;
+            this.Time = time;
         }
 
     }

@@ -15,7 +15,8 @@ namespace WhereUAt.Ninja.Mobile
             Debug.WriteLine("LocationService.sendLocation");
             WhereUAtNinjaAPI api = WhereUAtNinjaAPI.getInstance();
             DateTime locationDate = DateTime.Now.ToUniversalTime();
-            Task<bool> taskStatus = api.sendLocation(position.Longitude, position.Latitude, locationDate.Ticks);
+            Location location = new Location(position.Longitude, position.Latitude, locationDate.Ticks);
+            Task<bool> taskStatus = api.sendLocation(location);
             Debug.WriteLine("LocationService.sendLocation status:" + taskStatus.Result);
             return taskStatus.Result;
         }
