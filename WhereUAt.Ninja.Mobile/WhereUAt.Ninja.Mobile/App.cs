@@ -15,7 +15,6 @@ namespace WhereUAt.Ninja.Mobile
             var mainPage = new MainPage();
             _NavPage = new NavigationPage(mainPage);
             MainPage = _NavPage;
-            IsLocationTrackerStarted = false;
         }
 
         static volatile App _Instance;
@@ -43,8 +42,6 @@ namespace WhereUAt.Ninja.Mobile
         {
             get { return !string.IsNullOrWhiteSpace(_Token); }
         }
-
-        public bool IsLocationTrackerStarted { get; set; }
 
         string _Token;
         public string Token

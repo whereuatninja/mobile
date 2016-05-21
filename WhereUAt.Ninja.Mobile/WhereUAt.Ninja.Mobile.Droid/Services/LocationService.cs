@@ -38,7 +38,7 @@ namespace WhereUAt.Ninja.Mobile.Droid.Services
                 {
                     if (_cts.IsCancellationRequested)
                     {
-                        //TODO
+                        Log.Debug("LocationService", "Cancellation Requested");
                         //var message = new CancelledMessage();
                         //Device.BeginInvokeOnMainThread(
                         //    () => MessagingCenter.Send(message, "CancelledMessage")

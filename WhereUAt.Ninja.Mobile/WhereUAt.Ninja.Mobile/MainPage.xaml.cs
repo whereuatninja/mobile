@@ -31,9 +31,7 @@ namespace WhereUAt.Ninja.Mobile
         {
             Debug.WriteLine("MainPage");
             setupSettings();
-            setupGeoLocator();
             setupView();
-            //getLocationLoop();
         }
 
 
@@ -156,12 +154,8 @@ namespace WhereUAt.Ninja.Mobile
 
         private void OnSaveButtonClicked(object sender, EventArgs e)
         {
-            settings.IsLocationTrackerOn = this.locationTrackingSwitchCell.On;
-            settings.LocationTimeIntervalInMilliseconds = int.Parse(this.trackingIntervalEntryCell.Text)*1000;
-            if (settings.IsLocationTrackerOn && !App.Instance.IsLocationTrackerStarted)
-            {
-                startLocationBackgroundService();
-            }
+            saveSettings();
+            startOrStopLocationBackgroundService();
             Debug.WriteLine("Saved settings. IsLocationTrackerOn: {0}, LocationTimeIntervalInMilliseconds: {1}", settings.IsLocationTrackerOn, settings.LocationTimeIntervalInMilliseconds);
         }
 
@@ -182,7 +176,6 @@ namespace WhereUAt.Ninja.Mobile
 
         async void OnLoginButtonClicked(object sender, EventArgs e)
         {
-            Debug.WriteLine("I got clicked");
             if (!App.Instance.IsAuthenticated)
             {
                 App.Instance.MainNav = this;
@@ -190,75 +183,41 @@ namespace WhereUAt.Ninja.Mobile
             }
         }
 
-        private void StartServiceButton_Clicked(object sender, EventArgs e)
+        private void saveSettings()
         {
-            //var locationTask = new Task(() => { getLocationLoop(); });
-            //locationTask.Start();
-            
+            settings.IsLocationTrackerOn = this.locationTrackingSwitchCell.On;
+            settings.LocationTimeIntervalInMilliseconds = int.Parse(this.trackingIntervalEntryCell.Text) * 1000;
+        }
+
+        private async void startOrStopLocationBackgroundService()
+        {
+            if (settings.IsLocationTrackerOn)
+            {
+                startLocationBackgroundService();
+                await this.DisplayAlert("", "Location Tracker is on", "OK");
+            }
+            else
+            {
+                stopLocationBackgroundService();
+                await this.DisplayAlert("", "Location Tracker is off", "OK");
+            }
         }
 
         private void startLocationBackgroundService()
         {
             var message = new StartLocationBackgroundService();
             MessagingCenter.Send(message, "StartLocationBackgroundService");
-            App.Instance.IsLocationTrackerStarted = true;
+        }
+
+        private void stopLocationBackgroundService()
+        {
+            var message = new StopLocationBackgroundService();
+            MessagingCenter.Send(message, "StopLocationBackgroundService");
         }
 
         private void setupSettings()
         {
             this.settings = Settings.getInstance();
-        }
-
-        private async void getLocationLoop()
-        {
-            while (true)
-            {
-                if (settings.IsLocationTrackerOn/* && App.Instance.IsAuthenticated*/)
-                {
-                    await Task.Factory.StartNew(async () =>
-                    {
-                        Position position = await getCurrentLocation();
-                        if (position != null)
-                        {
-                            addCurrentLocationToList(position);
-                            sendLocation(position);
-                        }
-                    });
-                }
-                else
-                {
-                    Debug.WriteLine("Not authenticated and/or location tracker off");
-                }
-                await Task.Delay(settings.LocationTimeIntervalInMilliseconds);
-            }
-        }
-
-        private void setupGeoLocator()
-        {
-            _locator = CrossGeolocator.Current;
-            _locator.AllowsBackgroundUpdates = true;
-        }
-
-        async private Task<Position> getCurrentLocation()
-        {
-            Position position = null;
-            try
-            {
-                position = await _locator.GetPositionAsync(timeoutMilliseconds: settings.LocationTimeOutInMilliseconds);
-                await _locator.StopListeningAsync();
-            }
-            catch(Exception ex)
-            {
-                Debug.WriteLine("Unable to get location: "+ex.Message);
-            }
-            
-            return position;
-        }
-
-        private void sendLocation(Position position)
-        {
-            Debug.WriteLine("sendLocation");
-            LocationService.sendLocation(position);
         }
 
         private void addCurrentLocationToList(Position position)

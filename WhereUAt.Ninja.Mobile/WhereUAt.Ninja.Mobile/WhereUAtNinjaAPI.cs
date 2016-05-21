@@ -38,7 +38,8 @@ namespace WhereUAt.Ninja.Mobile
         private void setupHttpClient()
         {
             httpClient = new HttpClient(new NativeMessageHandler());
-            httpClient.BaseAddress = new Uri("http://192.168.99.100/api/");
+            //httpClient.BaseAddress = new Uri("http://192.168.99.100/api/");
+            httpClient.BaseAddress = new Uri("http://dev.whereuat.ninja/api/");
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
         }
@@ -71,6 +72,7 @@ namespace WhereUAt.Ninja.Mobile
             catch(Exception e)
             {
                 Debug.WriteLine("Failed to send request:"+e.Message);
+                Debug.WriteLine("Stack trace: " + e.StackTrace);
                 isSuccessful = false;
             }
             
@@ -112,6 +114,7 @@ namespace WhereUAt.Ninja.Mobile
             String body = buildLocationJson(location);
             Debug.WriteLine("Content: " + body);
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "locations");
+            Debug.WriteLine("request uri: {0}", request.RequestUri);
             //HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "http://dev.whereuat.ninja/api/locations");
             StringContent content = new StringContent(body);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -129,15 +132,6 @@ namespace WhereUAt.Ninja.Mobile
             return serializedJson;
         }
 
-        private HttpRequestMessage buildSendLocationRequest(String body)
-        {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "http://192.168.99.100/api/locations");
-            StringContent content = new StringContent(body);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            request.Content = content;
-            return request;
-        }
-
         private async Task<bool> isSendLocationSuccessful(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
@@ -150,7 +144,9 @@ namespace WhereUAt.Ninja.Mobile
             }
             else
             {
-                Debug.WriteLine("WhereUAtNinjaAPI.isSendLocationSuccessful statuscode is FAILED!!! code:"+response.StatusCode);
+                String responseContent = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine("WhereUAtNinjaAPI.isSendLocationSuccessful statuscode is FAILED!!! Status Code: {0}, ReasonPhrase: {1}, Content: {2}",response.StatusCode, response.ReasonPhrase, responseContent);
+                
                 return false;
             }
         }

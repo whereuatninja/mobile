@@ -42,23 +42,18 @@ namespace WhereUAt.Ninja.Mobile
 
                     await Task.Delay(settings.LocationTimeIntervalInMilliseconds);
 
-                    await Task.Factory.StartNew(async () =>
+                    Debug.WriteLine("LocationTimerService ping");
+                    if (settings.IsLocationTrackerOn)
                     {
-                        Position position = await getCurrentLocation();
-                        if (position != null)
+                        await Task.Factory.StartNew(async () =>
                         {
-                            sendLocation(position);
-                        }
-                    });
-
-                    /*var message = new TickedMessage
-                    {
-                        Message = i.ToString()
-                    };
-
-                    Device.BeginInvokeOnMainThread(() => {
-                        MessagingCenter.Send<TickedMessage>(message, "TickedMessage");
-                    });*/
+                            Position position = await getCurrentLocation();
+                            if (position != null)
+                            {
+                                sendLocation(position);
+                            }
+                        });
+                    }
                 }
             }, token);
         }

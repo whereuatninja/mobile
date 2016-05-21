@@ -27,6 +27,12 @@ namespace WhereUAt.Ninja.Mobile.Droid
                 var intent = new Intent(this, typeof(LocationService));
                 StartService(intent);
             });
+
+            MessagingCenter.Subscribe<StopLocationBackgroundService>(this, "StopLocationBackgroundService", message => {
+                Log.Debug("MainActivity", "StopLocationBackgroundService message received");
+                var intent = new Intent(this, typeof(LocationService));
+                StopService(intent);
+            });
         }
     }
 }
