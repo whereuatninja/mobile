@@ -38,8 +38,8 @@ namespace WhereUAt.Ninja.Mobile
         private void setupHttpClient()
         {
             httpClient = new HttpClient(new NativeMessageHandler());
-            //httpClient.BaseAddress = new Uri("http://192.168.99.100/api/");
-            httpClient.BaseAddress = new Uri("http://dev.whereuat.ninja/api/");
+            httpClient.BaseAddress = new Uri("http://192.168.99.100/api/");
+            //httpClient.BaseAddress = new Uri("http://dev.whereuat.ninja/api/");
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
         }
