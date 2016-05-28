@@ -34,41 +34,6 @@ namespace WhereUAt.Ninja.Mobile
             setupView();
         }
 
-
-        /*private void setupView()
-        {
-            locationList = new ObservableCollection<string>();
-
-            Label headerLabel = new Label
-            {
-                Text = "Whereu@Ninja",
-                Font = Font.SystemFontOfSize(50),
-                HorizontalOptions = LayoutOptions.Center
-            };
-
-            Button startServiceButton = new Button
-            {
-                Text = "Start Tracking"
-            };
-
-            startServiceButton.Clicked += StartServiceButton_Clicked;
-
-            locationListView = new ListView
-            {
-                ItemsSource = locationList
-            };
-
-            this.Content = new StackLayout
-            {
-                Children =
-                {
-                    headerLabel,
-                    startServiceButton,
-                    locationListView
-                }
-            };
-        }*/
-
         private void setupView()
         {
             Label header = new Label
@@ -81,7 +46,7 @@ namespace WhereUAt.Ninja.Mobile
             Label settingsLabel = new Label
             {
                 Text = "Settings:",
-                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
+                FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
                 HorizontalOptions = LayoutOptions.Start
             };
 
@@ -94,6 +59,16 @@ namespace WhereUAt.Ninja.Mobile
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
             loginButton.Clicked += OnLoginButtonClicked;
+
+            Button activityButton = new Button
+            {
+                Text = "Post an Activity",
+                Font = Font.SystemFontOfSize(NamedSize.Large),
+                BorderWidth = 1,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.CenterAndExpand
+            };
+            activityButton.Clicked += OnActivityButtonClicked;
 
             locationTrackingSwitchCell = new SwitchCell
             {
@@ -145,11 +120,17 @@ namespace WhereUAt.Ninja.Mobile
                 {
                     header,
                     loginButton,
+                    activityButton,
                     settingsLabel,
                     tableView,
                     saveSettingsButton
                 }
             };
+        }
+
+        private void OnActivityButtonClicked(object sender, EventArgs e)
+        {
+            this.Navigation.PushAsync(new ActivityPage());
         }
 
         private void OnSaveButtonClicked(object sender, EventArgs e)

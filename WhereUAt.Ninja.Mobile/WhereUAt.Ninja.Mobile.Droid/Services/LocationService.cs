@@ -29,7 +29,7 @@ namespace WhereUAt.Ninja.Mobile.Droid.Services
                 try
                 {
                     LocationTimerService locationService = new LocationTimerService();
-                    locationService.startService(_cts.Token).Wait();
+                    locationService.startService(_cts.Token);
                 }
                 catch (Android.OS.OperationCanceledException)
                 {

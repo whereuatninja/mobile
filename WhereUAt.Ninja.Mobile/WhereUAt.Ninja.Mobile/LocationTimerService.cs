@@ -32,9 +32,9 @@ namespace WhereUAt.Ninja.Mobile
             _locator.AllowsBackgroundUpdates = true;
         }
 
-        public async Task startService(CancellationToken token)
+        public void startService(CancellationToken token)
         {
-            await Task.Run(async () => {
+            Task.Run(async () => {
 
                 while(true)
                 {
@@ -45,39 +45,13 @@ namespace WhereUAt.Ninja.Mobile
                     Debug.WriteLine("LocationTimerService ping");
                     if (settings.IsLocationTrackerOn)
                     {
-                        await Task.Factory.StartNew(async () =>
-                        {
-                            Position position = await getCurrentLocation();
-                            if (position != null)
-                            {
-                                sendLocation(position);
-                            }
-                        });
+                        await Task.Factory.StartNew(() =>
+                         {
+                             LocationService.getInstance().sendCurrentLocation("");
+                         });
                     }
                 }
             }, token);
-        }
-
-        async private Task<Position> getCurrentLocation()
-        {
-            Position position = null;
-            try
-            {
-                position = await _locator.GetPositionAsync(timeoutMilliseconds: settings.LocationTimeOutInMilliseconds);
-                await _locator.StopListeningAsync();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Unable to get location: " + ex.Message);
-            }
-
-            return position;
-        }
-
-        private void sendLocation(Position position)
-        {
-            Debug.WriteLine("sendLocation");
-            LocationService.sendLocation(position);
         }
     }
 }

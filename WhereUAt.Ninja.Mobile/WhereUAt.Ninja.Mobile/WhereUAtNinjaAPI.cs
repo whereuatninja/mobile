@@ -44,7 +44,7 @@ namespace WhereUAt.Ninja.Mobile
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
         }
 
-        public async Task<bool> sendLocation(Location location)
+        public async void sendLocation(Location location)
         {
             bool areFailedRequestsSent = sendPreviouslyFailedRequests();
             bool isSuccessful = false;
@@ -58,7 +58,6 @@ namespace WhereUAt.Ninja.Mobile
             {
                 storeFailedRequest(location, false);
             }
-            return isSuccessful;
         }
 
         private async Task<bool> sendRequest(HttpRequestMessage request)
@@ -128,6 +127,7 @@ namespace WhereUAt.Ninja.Mobile
             json.Add("long", location.Longitude);
             json.Add("lat", location.Latitude);
             json.Add("time", location.Time);
+            json.Add("message", location.Message);
             String serializedJson = JsonConvert.SerializeObject(json);
             return serializedJson;
         }

@@ -35,6 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ActivityPage.cs" />
     <Compile Include="App.cs" />
     <Compile Include="BaseContentPage.cs" />
     <Compile Include="Location.cs" />

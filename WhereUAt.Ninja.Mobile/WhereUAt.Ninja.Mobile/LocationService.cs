@@ -1,4 +1,5 @@
-﻿using Plugin.Geolocator.Abstractions;
+﻿using Plugin.Geolocator;
+using Plugin.Geolocator.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,22 +11,67 @@ namespace WhereUAt.Ninja.Mobile
 {
     class LocationService
     {
-        public static bool sendLocation(Position position)
+        private static LocationService instance;
+        private IGeolocator _locator;
+        private Settings settings;
+        private WhereUAtNinjaAPI api;
+
+        public static LocationService getInstance()
         {
-            Debug.WriteLine("LocationService.sendLocation");
-            WhereUAtNinjaAPI api = WhereUAtNinjaAPI.getInstance();
+            if (LocationService.instance == null)
+            {
+                LocationService.instance = new LocationService();
+            }
+            return LocationService.instance;
+        }
+
+        private LocationService()
+        {
+            setupSettings();
+            setupGeoLocator();
+            api = WhereUAtNinjaAPI.getInstance();
+        }
+
+        private void setupSettings()
+        {
+            this.settings = Settings.getInstance();
+        }
+
+        private void setupGeoLocator()
+        {
+            _locator = CrossGeolocator.Current;
+            _locator.AllowsBackgroundUpdates = true;
+        }
+        
+        public async void sendCurrentLocation(String message)
+        {
             long timestamp = epochTimeStamp();
-            Debug.WriteLine("timestamp: {0}", timestamp);
-            Location location = new Location(position.Longitude, position.Latitude, timestamp);
-            Task<bool> taskStatus = api.sendLocation(location);
-            Debug.WriteLine("LocationService.sendLocation status:" + taskStatus.Result);
-            return taskStatus.Result;
+            Position position = await getCurrentLocation();
+            Location location = new Location(position.Longitude, position.Latitude, timestamp, message);
+            Debug.WriteLine("Sending location");
+            api.sendLocation(location);
         }
 
         private static long epochTimeStamp()
         {
             var timeSpan = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0));
             return (long)timeSpan.TotalSeconds;
+        }
+
+        async private Task<Position> getCurrentLocation()
+        {
+            Position position = null;
+            try
+            {
+                position = await _locator.GetPositionAsync(timeoutMilliseconds: settings.LocationTimeOutInMilliseconds);
+                await _locator.StopListeningAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Unable to get location: " + ex.Message);
+            }
+
+            return position;
         }
     }
 }
