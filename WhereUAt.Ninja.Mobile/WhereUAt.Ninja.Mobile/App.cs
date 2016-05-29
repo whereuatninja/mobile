@@ -10,6 +10,7 @@ namespace WhereUAt.Ninja.Mobile
     public class App : Application
     {
         public static NavigationPage _NavPage; 
+
         public App()
         {
             var mainPage = new MainPage();
@@ -61,7 +62,9 @@ namespace WhereUAt.Ninja.Mobile
         {
             get
             {
-                return new Action(async () => await MainNav.Navigation.PopModalAsync());
+                WhereUAtNinjaAPI.getInstance().updateHttpClientToken();
+                //return new Action(async () => await MainNav.Navigation.PopModalAsync());
+                return new Action(async () => await MainNav.Navigation.PopAsync());
             }
         }
 

@@ -1,14 +1,7 @@
-﻿using Plugin.Geolocator;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using Xamarin.Forms;
-using System.Threading;
-using AdvancedTimer.Forms.Plugin.Abstractions;
 using Plugin.Geolocator.Abstractions;
 using WhereUAt.Ninja.Mobile.Messages;
 using System.ComponentModel;
@@ -17,9 +10,11 @@ namespace WhereUAt.Ninja.Mobile
 {
     public partial class MainPage : BaseContentPage
     {
+        private StatusPage statusPage;
         private ListView locationListView;
         private ObservableCollection<string> locationList;
         private IGeolocator _locator;
+        private IDisposable unsubscriber;
 
         //view elements
         private SwitchCell locationTrackingSwitchCell;
@@ -32,6 +27,7 @@ namespace WhereUAt.Ninja.Mobile
             Debug.WriteLine("MainPage");
             setupSettings();
             setupView();
+            statusPage = new StatusPage();
         }
 
         private void setupView()
@@ -69,6 +65,16 @@ namespace WhereUAt.Ninja.Mobile
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
             activityButton.Clicked += OnActivityButtonClicked;
+
+            Button statusButton = new Button
+            {
+                Text = "Status",
+                Font = Font.SystemFontOfSize(NamedSize.Large),
+                BorderWidth = 1,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.CenterAndExpand
+            };
+            statusButton.Clicked += OnStatusButtonClicked;
 
             locationTrackingSwitchCell = new SwitchCell
             {
@@ -121,6 +127,7 @@ namespace WhereUAt.Ninja.Mobile
                     header,
                     loginButton,
                     activityButton,
+                    statusButton,
                     settingsLabel,
                     tableView,
                     saveSettingsButton
@@ -128,9 +135,25 @@ namespace WhereUAt.Ninja.Mobile
             };
         }
 
+        private void OnStatusButtonClicked(object sender, EventArgs e)
+        {
+            this.Navigation.PushAsync(statusPage);
+        }
+
         private void OnActivityButtonClicked(object sender, EventArgs e)
         {
             this.Navigation.PushAsync(new ActivityPage());
+        }
+
+        private void OnLoginButtonClicked(object sender, EventArgs e)
+        {
+            if (!App.Instance.IsAuthenticated)
+            {
+                //App.Instance.MainNav = this;
+                //await this.Navigation.PushModalAsync(new LoginPage());
+                App.Instance.MainNav = this;
+                this.Navigation.PushAsync(new LoginPage());
+            }
         }
 
         private void OnSaveButtonClicked(object sender, EventArgs e)
@@ -153,15 +176,6 @@ namespace WhereUAt.Ninja.Mobile
         private void OnTrackingIntervalEntryCellCompleted(object sender, EventArgs e)
         {
             Debug.WriteLine("Im done being filled out");
-        }
-
-        async void OnLoginButtonClicked(object sender, EventArgs e)
-        {
-            if (!App.Instance.IsAuthenticated)
-            {
-                App.Instance.MainNav = this;
-                await this.Navigation.PushModalAsync(new LoginPage());
-            }
         }
 
         private void saveSettings()
@@ -209,6 +223,12 @@ namespace WhereUAt.Ninja.Mobile
                 Debug.WriteLine(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
             }
         }
+
+        private void update()
+        {
+
+        }
+
     }
 }
 

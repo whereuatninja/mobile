@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Threading;
 using ModernHttpClient;
+using Xamarin.Forms;
 
 namespace WhereUAt.Ninja.Mobile
 {
@@ -18,7 +19,8 @@ namespace WhereUAt.Ninja.Mobile
     {
         public static WhereUAtNinjaAPI instance;
         private HttpClient httpClient;
-        private Queue<Location> failedRequestsQueue;
+        private Queue<IHttpRequest> storedRequestsQueue;
+        private DateTime lastRequestSentDateTime;
 
         public static WhereUAtNinjaAPI getInstance()
         {
@@ -32,7 +34,8 @@ namespace WhereUAt.Ninja.Mobile
         private WhereUAtNinjaAPI()
         {
             setupHttpClient();
-            failedRequestsQueue = new Queue<Location>();
+            storedRequestsQueue = new Queue<IHttpRequest>();
+            lastRequestSentDateTime = DateTime.MinValue;
         }
 
         private void setupHttpClient()
@@ -44,29 +47,59 @@ namespace WhereUAt.Ninja.Mobile
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
         }
 
+        public void updateHttpClientToken()
+        {
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
+        }
+
         public async void sendLocation(Location location)
         {
-            bool areFailedRequestsSent = sendPreviouslyFailedRequests();
-            bool isSuccessful = false;
-            if (areFailedRequestsSent)
+            Debug.WriteLine("API: sendLocation");
+            bool areStoredRequestsSent = sendStoredRequests();
+            if (areStoredRequestsSent)
             {
-                HttpRequestMessage request = buildRequestFromLocation(location);
-                isSuccessful = await sendRequest(request);
-                storeFailedRequest(location, isSuccessful);
+                await sendRequest(location);
             }
             else
             {
-                storeFailedRequest(location, false);
+                this.storedRequestsQueue.Enqueue(location);
             }
+            sendApiStatus();
         }
 
-        private async Task<bool> sendRequest(HttpRequestMessage request)
+        public void sendApiStatus()
         {
+            ApiStatus status = new ApiStatus(this.storedRequestsQueue.Count, this.lastRequestSentDateTime);
+            MessagingCenter.Send(status, "ApiStatus");
+        }
+
+        private async Task<bool> sendRequest(IHttpRequest httpRequest)
+        {
+            Debug.WriteLine("API: sendRequest");
             bool isSuccessful = false;
             try
             {
-                HttpResponseMessage response = await httpClient.SendAsync(request);
-                isSuccessful = isSendLocationSuccessful(response).Result;
+                if (App.Instance.IsAuthenticated)
+                {
+                    Debug.WriteLine("API: IsAuthenticated");
+                    HttpResponseMessage response = await httpClient.SendAsync(httpRequest.buildRequest());
+                    Debug.WriteLine("API: before call to isRequestSuccessful");
+                    Task<bool> isSuccess = isRequestSuccessful(response);
+                    if (!isSuccess.Result)
+                    {
+                        storedRequestsQueue.Enqueue(httpRequest);
+                    }
+                    isSuccessful = isRequestSuccessful(response).Result;
+                    if (isSuccessful)
+                    {
+                        this.lastRequestSentDateTime = DateTime.Now;
+                    }
+                }
+                else
+                {
+                    storedRequestsQueue.Enqueue(httpRequest);
+                }
+                
             }
             catch(Exception e)
             {
@@ -78,15 +111,14 @@ namespace WhereUAt.Ninja.Mobile
             return isSuccessful;
         }
 
-        private bool sendPreviouslyFailedRequests()
+        private bool sendStoredRequests()
         {
-            Debug.WriteLine("Failed Requests Queue Size: " + failedRequestsQueue.Count);
-            while (failedRequestsQueue.Count > 0)
+            Debug.WriteLine("Failed Requests Queue Size: " + storedRequestsQueue.Count);
+            while (storedRequestsQueue.Count > 0)
             {
                 Debug.WriteLine("about to send a failed request");
-                Location failedLocation = failedRequestsQueue.Peek();
-                HttpRequestMessage newRequest = buildRequestFromLocation(failedLocation);
-                Task<bool> isSuccessful = sendRequest(newRequest);
+                IHttpRequest storedRequest = storedRequestsQueue.Peek();
+                Task<bool> isSuccessful = sendRequest(storedRequest);
                 if (!isSuccessful.Result)
                 {
                     return false;
@@ -94,45 +126,13 @@ namespace WhereUAt.Ninja.Mobile
                 else
                 {
                     Debug.WriteLine("successfully sent a previously failed request");
-                    failedRequestsQueue.Dequeue();
+                    storedRequestsQueue.Dequeue();
                 }
             }
             return true;
         }
 
-        private void storeFailedRequest(Location location, bool isSuccessful)
-        {
-            if (!isSuccessful)
-            {
-                failedRequestsQueue.Enqueue(location);
-            }
-        }
-
-        private HttpRequestMessage buildRequestFromLocation(Location location)
-        {
-            String body = buildLocationJson(location);
-            Debug.WriteLine("Content: " + body);
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "locations");
-            Debug.WriteLine("request uri: {0}", request.RequestUri);
-            //HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "http://dev.whereuat.ninja/api/locations");
-            StringContent content = new StringContent(body);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            request.Content = content;
-            return request;
-        }
-
-        private String buildLocationJson(Location location)
-        {
-            JObject json = new JObject();
-            json.Add("long", location.Longitude);
-            json.Add("lat", location.Latitude);
-            json.Add("time", location.Time);
-            json.Add("message", location.Message);
-            String serializedJson = JsonConvert.SerializeObject(json);
-            return serializedJson;
-        }
-
-        private async Task<bool> isSendLocationSuccessful(HttpResponseMessage response)
+        private async Task<bool> isRequestSuccessful(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
@@ -150,5 +150,7 @@ namespace WhereUAt.Ninja.Mobile
                 return false;
             }
         }
+
+
     }
 }

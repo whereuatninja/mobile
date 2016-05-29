@@ -33,6 +33,7 @@ namespace WhereUAt.Ninja.Mobile.Droid
                 var intent = new Intent(this, typeof(LocationService));
                 StopService(intent);
             });
+
         }
     }
 }
