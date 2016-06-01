@@ -47,7 +47,7 @@ namespace WhereUAt.Ninja.Mobile
                     {
                         await Task.Factory.StartNew(() =>
                          {
-                             LocationService.getInstance().sendCurrentLocation("");
+                             LocationService.getInstance().sendCurrentLocation("", "");
                          });
                     }
                 }

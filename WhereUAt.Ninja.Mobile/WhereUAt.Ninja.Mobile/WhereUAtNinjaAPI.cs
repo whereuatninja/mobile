@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
-
-using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
-using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Threading;
 using ModernHttpClient;
 using Xamarin.Forms;
 
@@ -54,14 +48,15 @@ namespace WhereUAt.Ninja.Mobile
 
         public async void sendLocation(Location location)
         {
+            bool isSuccessful = false;
             Debug.WriteLine("API: sendLocation");
-            bool areStoredRequestsSent = sendStoredRequests();
+            bool areStoredRequestsSent = await sendStoredRequests();
             if (areStoredRequestsSent)
             {
-                await sendRequest(location);
+                isSuccessful = await sendRequest(location);
             }
-            else
-            {
+
+            if (!isSuccessful) { 
                 this.storedRequestsQueue.Enqueue(location);
             }
             sendApiStatus();
@@ -84,20 +79,11 @@ namespace WhereUAt.Ninja.Mobile
                     Debug.WriteLine("API: IsAuthenticated");
                     HttpResponseMessage response = await httpClient.SendAsync(httpRequest.buildRequest());
                     Debug.WriteLine("API: before call to isRequestSuccessful");
-                    Task<bool> isSuccess = isRequestSuccessful(response);
-                    if (!isSuccess.Result)
-                    {
-                        storedRequestsQueue.Enqueue(httpRequest);
-                    }
                     isSuccessful = isRequestSuccessful(response).Result;
                     if (isSuccessful)
                     {
                         this.lastRequestSentDateTime = DateTime.Now;
                     }
-                }
-                else
-                {
-                    storedRequestsQueue.Enqueue(httpRequest);
                 }
                 
             }
@@ -111,15 +97,15 @@ namespace WhereUAt.Ninja.Mobile
             return isSuccessful;
         }
 
-        private bool sendStoredRequests()
+        private async Task<bool> sendStoredRequests()
         {
             Debug.WriteLine("Failed Requests Queue Size: " + storedRequestsQueue.Count);
             while (storedRequestsQueue.Count > 0)
             {
                 Debug.WriteLine("about to send a failed request");
                 IHttpRequest storedRequest = storedRequestsQueue.Peek();
-                Task<bool> isSuccessful = sendRequest(storedRequest);
-                if (!isSuccessful.Result)
+                bool isSuccessful = await sendRequest(storedRequest);
+                if (!isSuccessful)
                 {
                     return false;
                 }
@@ -150,6 +136,7 @@ namespace WhereUAt.Ninja.Mobile
                 return false;
             }
         }
+       
 
 
     }

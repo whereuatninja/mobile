@@ -43,11 +43,11 @@ namespace WhereUAt.Ninja.Mobile
             _locator.AllowsBackgroundUpdates = true;
         }
         
-        public async void sendCurrentLocation(String message)
+        public async void sendCurrentLocation(String message, String twitterUrl)
         {
             long timestamp = epochTimeStamp();
             Position position = await getCurrentLocation();
-            Location location = new Location(position.Longitude, position.Latitude, timestamp, message);
+            Location location = new Location(position.Longitude, position.Latitude, timestamp, message, twitterUrl);
             Debug.WriteLine("Sending location");
             api.sendLocation(location);
         }

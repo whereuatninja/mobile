@@ -142,7 +142,7 @@ namespace WhereUAt.Ninja.Mobile
 
         private void OnActivityButtonClicked(object sender, EventArgs e)
         {
-            this.Navigation.PushAsync(new ActivityPage());
+            this.Navigation.PushAsync(new ActivityPage(""));
         }
 
         private void OnLoginButtonClicked(object sender, EventArgs e)

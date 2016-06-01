@@ -16,13 +16,15 @@ namespace WhereUAt.Ninja.Mobile
         public double Latitude { get; private set; }
         public long Time { get; private set; }
         public String Message { get; private set; }
+        public String TwitterUrl { get; private set; }
 
-        public Location(double longitude, double latitude, long time, String message)
+        public Location(double longitude, double latitude, long time, String message, String twitterUrl)
         {
             this.Longitude = longitude;
             this.Latitude = latitude;
             this.Time = time;
             this.Message = message;
+            this.TwitterUrl = twitterUrl;
         }
 
         public HttpRequestMessage buildRequest()
@@ -42,6 +44,7 @@ namespace WhereUAt.Ninja.Mobile
             json.Add("lat", this.Latitude);
             json.Add("time", this.Time);
             json.Add("message", this.Message);
+            json.Add("twitterUrl", this.TwitterUrl);
             return JsonConvert.SerializeObject(json);
         }
     }
