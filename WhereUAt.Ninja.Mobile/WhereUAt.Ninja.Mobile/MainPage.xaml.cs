@@ -11,14 +11,14 @@ namespace WhereUAt.Ninja.Mobile
     public partial class MainPage : BaseContentPage
     {
         private StatusPage statusPage;
-        private ListView locationListView;
-        private ObservableCollection<string> locationList;
-        private IGeolocator _locator;
-        private IDisposable unsubscriber;
 
         //view elements
         private SwitchCell locationTrackingSwitchCell;
         private EntryCell trackingIntervalEntryCell;
+        private Button loginButton;
+        private Label loggedInUserStatusLabel;
+        private Label authorizationStatus;
+        private MainPageViewModel viewModel;
 
         private Settings settings;
 
@@ -29,15 +29,27 @@ namespace WhereUAt.Ninja.Mobile
             setupView();
             statusPage = new StatusPage();
         }
+        
 
         private void setupView()
         {
+            viewModel = new MainPageViewModel();
             Label header = new Label
             {
                 Text = "Whereu@Ninja",
                 FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
                 HorizontalOptions = LayoutOptions.Center
             };
+
+            loggedInUserStatusLabel = new Label
+            {
+                Text = "Please log in",
+                FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
+                HorizontalOptions = LayoutOptions.Start
+            };
+
+            loggedInUserStatusLabel.SetBinding(Label.TextProperty, "LoggedInUserStatusLabelText");
+            loggedInUserStatusLabel.BindingContext = viewModel;
 
             Label settingsLabel = new Label
             {
@@ -46,7 +58,7 @@ namespace WhereUAt.Ninja.Mobile
                 HorizontalOptions = LayoutOptions.Start
             };
 
-            Button loginButton = new Button
+            loginButton = new Button
             {
                 Text = "Log in",
                 Font = Font.SystemFontOfSize(NamedSize.Large),
@@ -125,6 +137,7 @@ namespace WhereUAt.Ninja.Mobile
                 Children =
                 {
                     header,
+                    loggedInUserStatusLabel,
                     loginButton,
                     activityButton,
                     statusButton,
@@ -213,15 +226,6 @@ namespace WhereUAt.Ninja.Mobile
         private void setupSettings()
         {
             this.settings = Settings.getInstance();
-        }
-
-        private void addCurrentLocationToList(Position position)
-        {
-            if (position != null)
-            {
-                locationList.Add(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
-                Debug.WriteLine(String.Format("Longitude: {0} Latitude: {1}", position.Longitude, position.Latitude));
-            }
         }
 
         private void update()

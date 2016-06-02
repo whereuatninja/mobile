@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Diagnostics;
 using ModernHttpClient;
 using Xamarin.Forms;
+using Auth0.SDK;
 
 namespace WhereUAt.Ninja.Mobile
 {
@@ -35,8 +36,8 @@ namespace WhereUAt.Ninja.Mobile
         private void setupHttpClient()
         {
             httpClient = new HttpClient(new NativeMessageHandler());
-            httpClient.BaseAddress = new Uri("http://192.168.99.100/api/");
-            //httpClient.BaseAddress = new Uri("http://dev.whereuat.ninja/api/");
+            //httpClient.BaseAddress = new Uri("http://192.168.99.100/api/");
+            httpClient.BaseAddress = new Uri("http://dev.whereuat.ninja/api/");
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
         }
@@ -44,6 +45,7 @@ namespace WhereUAt.Ninja.Mobile
         public void updateHttpClientToken()
         {
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.Token);
+
         }
 
         public async void sendLocation(Location location)
@@ -130,6 +132,11 @@ namespace WhereUAt.Ninja.Mobile
             }
             else
             {
+                if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    App.Instance.SaveToken("");//signal to App that no longer authenticated
+                    Debug.WriteLine("Token is expired!!!!!!");
+                }
                 String responseContent = await response.Content.ReadAsStringAsync();
                 Debug.WriteLine("WhereUAtNinjaAPI.isSendLocationSuccessful statuscode is FAILED!!! Status Code: {0}, ReasonPhrase: {1}, Content: {2}",response.StatusCode, response.ReasonPhrase, responseContent);
                 

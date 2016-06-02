@@ -40,50 +40,12 @@ namespace WhereUAt.Ninja.Mobile
             return button;
         }
 
-        private Button createTakePictureButton()
-        {
-            Button button = new Button
-            {
-                Text = "Take Picture"
-            };
-            button.Clicked += OnTakePictureClicked;
-
-            return button;
-        }
-
-        private async void OnTakePictureClicked(object sender, EventArgs e)
-        {
-            /*await CrossMedia.Current.Initialize();
-
-            if (!CrossMedia.Current.IsCameraAvailable || !CrossMedia.Current.IsTakePhotoSupported)
-            {
-                DisplayAlert("No Camera", ":( No camera available.", "OK");
-                return;
-            }
-
-            var file = await CrossMedia.Current.TakePhotoAsync(new Plugin.Media.Abstractions.StoreCameraMediaOptions
-            {
-                Directory = "Sample",
-                Name = "test.jpg"
-            });
-
-            if (file == null)
-                return;
-
-            await DisplayAlert("File Location", file.Path, "OK");
-            Image image = new Image();
-            image.Source = ImageSource.FromStream(() =>
-            {
-                var stream = file.GetStream();
-                file.Dispose();
-                return stream;
-            });*/
-        }
-
         private async void OnPostActivityClicked(object sender, EventArgs e)
         {
             LocationService.getInstance().sendCurrentLocation(messageEditor.Text, twitterUrlEntry.Text);
-            await this.DisplayAlert("", "Clicked!", "OK");
+            //await this.DisplayAlert("", "Clicked!", "OK");
+            //await App.Instance.MainNav.Navigation.PopAsync();
+            await this.Navigation.PopAsync();
         }
     }
 }

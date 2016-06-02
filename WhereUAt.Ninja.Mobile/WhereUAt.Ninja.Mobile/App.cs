@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Auth0.SDK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,14 +35,37 @@ namespace WhereUAt.Ninja.Mobile
                         }
                     }
                 }
-
                 return _Instance;
             }
         }
 
         public bool IsAuthenticated
         {
-            get { return !string.IsNullOrWhiteSpace(_Token); }
+            get {
+                return !string.IsNullOrWhiteSpace(_Token);
+            }
+        }
+
+        Auth0Client _Auth0;
+        public Auth0Client Auth0
+        {
+            get { return _Auth0; }
+        }
+
+        public void SaveAuth0(Auth0Client auth0)
+        {
+            _Auth0 = auth0;
+        }
+
+        string _UserName;
+        public string UserName
+        {
+            get { return _UserName; }
+        }
+
+        public void SaveUserName(string username)
+        {
+            _UserName = username;
         }
 
         string _Token;
@@ -53,9 +77,15 @@ namespace WhereUAt.Ninja.Mobile
         public async void SaveToken(string token)
         {
             _Token = token;
-
-            // broadcast a message that authentication was successful
-            MessagingCenter.Send<App>(this, "Authenticated");
+            if (!string.IsNullOrEmpty(token))
+            {
+                // broadcast a message that authentication was successful
+                MessagingCenter.Send<App>(this, "Authenticated");
+            }
+            else
+            {
+                MessagingCenter.Send<App>(this, "UnAuthenticated");
+            }
         }
 
         public Action SuccessfulLoginAction
@@ -63,7 +93,6 @@ namespace WhereUAt.Ninja.Mobile
             get
             {
                 WhereUAtNinjaAPI.getInstance().updateHttpClientToken();
-                //return new Action(async () => await MainNav.Navigation.PopModalAsync());
                 return new Action(async () => await MainNav.Navigation.PopAsync());
             }
         }

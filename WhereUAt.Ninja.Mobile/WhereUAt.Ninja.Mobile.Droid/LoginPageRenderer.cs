@@ -26,7 +26,7 @@ namespace WhereUAt.Ninja.Mobile.Droid
 
             // this is a ViewGroup - so should be able to load an AXML file and FindView<>
             var activity = this.Context as Activity;
-
+            
             var auth0 = new Auth0Client(
                 "whereuat.auth0.com",
                 "F2wSS3rEHorHyW3C9ezB2NnEAClryjcI");
@@ -34,7 +34,10 @@ namespace WhereUAt.Ninja.Mobile.Droid
             try
             {
                 var user = await auth0.LoginAsync(this.Context);
+                string name = user.Profile["name"].ToString();
+                App.Instance.SaveUserName(name);
                 App.Instance.SaveToken(user.IdToken);
+                App.Instance.SaveAuth0(auth0);
                 App.Instance.SuccessfulLoginAction.Invoke();
             }
             catch (Exception ex)
