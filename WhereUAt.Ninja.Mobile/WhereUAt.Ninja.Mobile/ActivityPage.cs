@@ -16,7 +16,11 @@ namespace WhereUAt.Ninja.Mobile
         public ActivityPage(String twitterUrl)
         {
             this.messageEditor = new Editor{};
-            this.twitterUrlEntry = new Entry { Placeholder = "Twitter URL", Text = twitterUrl };
+            this.twitterUrlEntry = new Entry {
+                Placeholder = "Twitter URL",
+                Text = twitterUrl,
+                Keyboard = Keyboard.Create(KeyboardFlags.CapitalizeSentence)
+            };
 
             Content = new StackLayout
             {

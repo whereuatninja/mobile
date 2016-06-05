@@ -7,6 +7,7 @@ using System.Diagnostics;
 using ModernHttpClient;
 using Xamarin.Forms;
 using Auth0.SDK;
+using System.Threading;
 
 namespace WhereUAt.Ninja.Mobile
 {
